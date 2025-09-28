@@ -1,6 +1,6 @@
 # SimpleHealth - Módulo de Armazenamento (Frontend)
 
-Este é o frontend JavaFX para o módulo de armazenamento do sistema SimpleHealth. O projeto consome APIs REST desenvolvidas em Spring Boot para gerenciar itens de estoque, fornecedores, pedidos e estoques.
+Este é o frontend JavaFX para o módulo de armazenamento do sistema SimpleHealth. O projeto implementa um sistema completo de CRUDs (Create, Read, Update, Delete) consumindo APIs REST desenvolvidas em Spring Boot para gerenciar itens de estoque, fornecedores, pedidos e estoques.
 
 ## Estrutura do Projeto
 
@@ -19,23 +19,141 @@ src/main/resources/
 └── logback.xml      # Configuração de logging
 ```
 
-## Funcionalidades
+## Funcionalidades dos CRUDs
 
-### Gerenciamento de Itens
-- CRUD completo para itens de estoque
-- Suporte a diferentes tipos de itens:
-  - **Medicamentos**: prescrição, composição, bula, tarja, modo de consumo
-  - **Itens Hospitalares**: descartável, uso (geral, cirúrgico, curativo)
-  - **Alimentos**: alérgenos, tipo de armazenamento
-- Validação de campos obrigatórios
-- Interface adaptável baseada no tipo de item
+### 1. CRUD de Estoque
+**Funcionalidades:**
+- Criar, atualizar, deletar e listar estoques
+- Cada estoque possui um local e uma coleção de itens
+- Interface permite adicionar/remover itens do estoque
 
-### Gerenciamento de Fornecedores
-- CRUD completo para fornecedores
-- Busca por nome
-- Campos: nome, CNPJ, contato, endereço
+**Campos:**
+- Local* (obrigatório)
+- Lista de itens associados
 
-### Arquitetura
+### 2. CRUD de Item
+**Funcionalidades:**
+- Criar, atualizar, deletar e listar itens
+- Suporte a 3 tipos específicos: Medicamento, Hospitalar e Alimento
+- Campos específicos aparecem dinamicamente baseados no tipo selecionado
+
+**Campos Comuns:**
+- Nome* (obrigatório)
+- Descrição
+- Tipo* (obrigatório) - MEDICAMENTO, HOSPITALAR, ALIMENTO
+- Unidade de Medida* (obrigatório)
+- Quantidade Total
+- Validade
+- Lote
+
+**Campos Específicos por Tipo:**
+
+**Medicamento:**
+- Prescrição
+- Composição
+- Bula
+- Tarja (LIVRE, VERMELHA, PRETA)
+- Modo de Consumo
+
+**Hospitalar:**
+- Descartável (checkbox)
+- Uso (GERAL, CIRÚRGICO, CURATIVO)
+
+**Alimento:**
+- Alérgenos
+- Tipo de Armazenamento (PERECÍVEL, NÃO PERECÍVEL, REFRIGERADO)
+
+### 3. CRUD de Pedido
+**Funcionalidades:**
+- Criar, atualizar, deletar e listar pedidos
+- Selecionar vários itens para um fornecedor
+- Controle de status do pedido
+
+**Campos:**
+- Data do Pedido* (obrigatório)
+- Status* (obrigatório) - PENDENTE, PROCESSANDO, ENVIADO, ENTREGUE, CANCELADO
+- Nota Fiscal
+- Fornecedor* (obrigatório)
+- Lista de itens do pedido
+
+### 4. CRUD de Fornecedor
+**Funcionalidades:**
+- Criar, atualizar, deletar e listar fornecedores
+- Gerenciamento de dados de contato e endereço
+
+**Campos:**
+- Nome* (obrigatório)
+- CNPJ* (obrigatório)
+- Contato
+- Endereço
+
+## Fluxo de Operações
+
+Todos os CRUDs seguem o mesmo padrão de operação:
+
+### Operação "Novo"
+1. Clique no botão "Novo"
+2. Formulário é exibido com campos limpos
+3. Preencha os campos obrigatórios (marcados com *)
+4. Para campos específicos (Item), selecione o tipo primeiro
+5. Clique em "Confirmar" para salvar ou "Cancelar" para descartar
+
+### Operação "Atualizar"
+1. Selecione um registro na tabela
+2. Clique no botão "Atualizar"
+3. Formulário é preenchido com os dados atuais
+4. Modifique os campos desejados
+5. Clique em "Confirmar" para salvar ou "Cancelar" para descartar
+
+### Operação "Deletar"
+1. Selecione um registro na tabela
+2. Clique no botão "Deletar"
+3. Confirme a exclusão na janela de diálogo
+4. O registro será removido do sistema
+
+### Funcionalidades Especiais
+
+#### Gerenciamento de Itens em Estoque/Pedido
+- Use o ComboBox "Adicionar Item" para selecionar itens disponíveis
+- Clique em "Adicionar Item" para incluir na lista
+- Selecione um item na lista e clique em "Remover Item" para excluir
+
+#### Seleção Dinâmica de Tipos (Item)
+- Ao selecionar um tipo no ComboBox, os campos específicos aparecem automaticamente
+- Medicamento: campos relacionados a prescrição e farmacologia
+- Hospitalar: campos para uso médico e descarte
+- Alimento: campos para alérgenos e armazenamento
+
+## Arquitetura do Sistema
+
+### Camadas
+1. **View (FXML)**: Interface gráfica JavaFX
+2. **Controller**: Lógica de apresentação e controle
+3. **Service**: Comunicação com APIs REST
+4. **Model**: Entidades de domínio
+
+### Padrões Utilizados
+- **MVC (Model-View-Controller)**: Separação de responsabilidades
+- **Abstract Factory**: `AbstractCrudController` para operações comuns
+- **Observer**: Listeners para eventos da interface
+- **ViewModel**: Classes de view para binding com JavaFX
+
+### Estrutura de Classes
+
+#### Herança de Itens
+```
+Item (classe base)
+├── Medicamento
+├── Hospitalar
+└── Alimento
+```
+
+#### Padrão CRUD
+Todos os controladores herdam de `AbstractCrudController` que fornece:
+- Operações CRUD via API
+- Validação de campos
+- Gerenciamento de estado da interface
+- Notificações entre telas
 
 #### Modelos
 - **Item**: Classe base para todos os itens
@@ -54,6 +172,15 @@ src/main/resources/
 - **AbstractCrudController**: Controlador base com funcionalidades CRUD
 - **ItemController**: Controlador específico para itens
 - **FornecedorController**: Controlador específico para fornecedores
+- **PedidoController**: Controlador específico para pedidos
+- **EstoqueController**: Controlador específico para estoques
+
+### APIs Consumidas
+O sistema consome APIs REST nos seguintes endpoints:
+- `http://localhost:8080/api/estoques`
+- `http://localhost:8080/api/itens`
+- `http://localhost:8080/api/pedidos`
+- `http://localhost:8080/api/fornecedores`
 
 ## Tecnologias Utilizadas
 
@@ -92,15 +219,38 @@ src/main/resources/
    mvn clean javafx:run
    ```
 
+### Via Scripts
+- **Windows**: Execute `run.bat`
+- **Linux/Mac**: Execute `run.sh`
+
+### Via IDE (Desenvolvimento)
+1. Execute a classe `MainApp.java`
+2. A aplicação abrirá com abas para cada CRUD
+
+## Validações
+
+### Campos Obrigatórios
+- Estoque: Local
+- Item: Nome, Tipo, Unidade de Medida
+- Pedido: Data, Status, Fornecedor
+- Fornecedor: Nome, CNPJ
+
+### Validações de Formato
+- Datas: Formato brasileiro (dd/MM/yyyy)
+- CNPJ: Validação de formato
+- Campos numéricos: Apenas números
+
+## Tratamento de Erros
+
+O sistema possui tratamento abrangente de erros:
+- **Erro de Comunicação**: Problemas com API REST
+- **Erro de Validação**: Campos obrigatórios não preenchidos
+- **Erro de Formato**: Dados em formato inválido
+- **Erro de Negócio**: Regras de domínio violadas
+
 ## Configuração da API
 
-Por padrão, a aplicação espera que as APIs estejam rodando em `http://localhost:8080`. 
-
-As seguintes rotas são utilizadas:
-- `/api/itens` - Gerenciamento de itens
-- `/api/fornecedores` - Gerenciamento de fornecedores
-- `/api/pedidos` - Gerenciamento de pedidos
-- `/api/estoques` - Gerenciamento de estoques
+Por padrão, a aplicação espera que as APIs estejam rodando em `http://localhost:8080`.
 
 ## Interface do Usuário
 
@@ -115,6 +265,18 @@ As seguintes rotas são utilizadas:
 - **Formulário**: Campos para dados do fornecedor
 - **Busca**: Funcionalidade de busca por nome
 - **Botões**: CRUD padrão + busca e filtros
+
+### Tela de Pedidos
+- **Tabela**: Lista todos os pedidos com status
+- **Formulário**: Campos para dados do pedido
+- **Seleção de Itens**: Múltiplos itens por pedido
+- **Controle de Status**: Estados do pedido
+
+### Tela de Estoques
+- **Tabela**: Lista todos os estoques por local
+- **Formulário**: Campos para dados do estoque
+- **Gerenciamento de Itens**: Adicionar/remover itens
+- **Localização**: Organização por local
 
 ## Logging
 
@@ -142,6 +304,23 @@ Todos os controladores herdam de `AbstractCrudController` que fornece:
 - Notificações entre telas
 
 ## Desenvolvimento
+
+### Estrutura de Arquivos
+
+```
+src/main/java/br/com/simplehealth/armazenamento/
+├── client/          # Aplicações principais
+├── controller/      # Controladores JavaFX
+├── model/          # Entidades de domínio
+├── service/        # Serviços para API REST
+└── view/           # ViewModels para JavaFX
+
+src/main/resources/view/  # Arquivos FXML
+├── estoque.fxml
+├── item.fxml
+├── pedido.fxml
+└── fornecedor.fxml
+```
 
 ### Adicionando Novos Módulos
 
