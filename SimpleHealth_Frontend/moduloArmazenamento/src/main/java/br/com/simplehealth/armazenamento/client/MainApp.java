@@ -26,17 +26,26 @@ public class MainApp extends Application {
         try {
             // Criar TabPane principal
             TabPane tabPane = new TabPane();
+            tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+            
+            // Aba de Estoque
+            Tab estoqueTab = criarAba("Estoque", "/view/estoque.fxml");
+            tabPane.getTabs().add(estoqueTab);
             
             // Aba de Itens
             Tab itemTab = criarAba("Itens", "/view/item.fxml");
             tabPane.getTabs().add(itemTab);
+            
+            // Aba de Pedidos
+            Tab pedidoTab = criarAba("Pedidos", "/view/pedido.fxml");
+            tabPane.getTabs().add(pedidoTab);
             
             // Aba de Fornecedores
             Tab fornecedorTab = criarAba("Fornecedores", "/view/fornecedor.fxml");
             tabPane.getTabs().add(fornecedorTab);
             
             // Configurar cena
-            Scene scene = new Scene(tabPane, 1200, 800);
+            Scene scene = new Scene(tabPane, 1400, 900);
             
             // Configurar palco principal
             primaryStage.setTitle("SimpleHealth - Módulo de Armazenamento");

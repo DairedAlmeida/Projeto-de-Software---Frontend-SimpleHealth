@@ -5,6 +5,9 @@ echo "SimpleHealth - Módulo Armazenamento"
 echo "========================================"
 echo
 
+# Navegar para o diretório correto
+cd "$(dirname "$0")"
+
 echo "Verificando se o Maven está instalado..."
 if ! command -v mvn &> /dev/null; then
     echo "ERRO: Maven não encontrado. Instale o Maven primeiro."
@@ -14,20 +17,12 @@ fi
 echo "Maven encontrado!"
 echo
 
-echo "Compilando o projeto..."
-mvn clean compile
-if [ $? -ne 0 ]; then
-    echo "ERRO: Falha na compilação."
-    exit 1
-fi
-
-echo
-echo "Executando a aplicação..."
+echo "Compilando e executando o projeto..."
 echo "IMPORTANTE: Certifique-se de que o backend Spring Boot esteja rodando na porta 8080"
 echo
-read -p "Pressione Enter para continuar..."
 
-mvn javafx:run
+# Compilar e executar em um comando
+mvn clean compile javafx:run
 
 echo
 echo "Aplicação finalizada."

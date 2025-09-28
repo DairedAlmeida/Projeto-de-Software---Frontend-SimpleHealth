@@ -108,10 +108,12 @@ public class ItemController extends AbstractCrudController<Item, br.com.simplehe
         setVisibilidadeCamposAlimento(false);
 
         // Mostrar campos específicos baseado no tipo
-        switch (tipo) {
-            case "MEDICAMENTO" -> setVisibilidadeCamposMedicamento(true);
-            case "HOSPITALAR" -> setVisibilidadeCamposHospitalar(true);
-            case "ALIMENTO" -> setVisibilidadeCamposAlimento(true);
+        if (tipo != null) {
+            switch (tipo) {
+                case "MEDICAMENTO" -> setVisibilidadeCamposMedicamento(true);
+                case "HOSPITALAR" -> setVisibilidadeCamposHospitalar(true);
+                case "ALIMENTO" -> setVisibilidadeCamposAlimento(true);
+            }
         }
     }
 
